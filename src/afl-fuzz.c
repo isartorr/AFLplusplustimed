@@ -34,6 +34,7 @@
 #include "common.h"
 #include <limits.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #ifndef USEMMAP
   #include <sys/mman.h>
   #include <sys/stat.h>
@@ -523,6 +524,12 @@ static int stricmp(char const *a, char const *b) {
 
 }
 
+static inline double get_unix_time_double(void) {
+  struct timeval tv;
+  gettimeofday(&tv, NULL);
+  return (double)tv.tv_sec + (double)tv.tv_usec / 1000000.0;
+}
+
 static void fasan_check_afl_preload(char *afl_preload) {
 
   char   first_preload[PATH_MAX + 1] = {0};
@@ -585,6 +592,12 @@ int main(int argc, char **argv_orig, char **envp) {
 
   struct timeval  tv;
   struct timezone tz;
+  gettimeofday(&tv, &tz);
+
+  // double start_time = tv.tv_sec + tv.tv_usec / 1e6;
+  // ACTF("TIMING: begin = %.6f", start_time);
+  // u64 start_time = get_cur_time();
+  // ACTF("TIMING: begin = %llu", start_time);
 
   doc_path = access(DOC_PATH, F_OK) != 0 ? (u8 *)"docs" : (u8 *)DOC_PATH;
 
@@ -632,6 +645,7 @@ int main(int argc, char **argv_orig, char **envp) {
   if (get_afl_env("AFL_DEBUG")) { debug = afl->debug = 1; }
 
   afl_state_init(afl, map_size);
+  afl->exp_time_begin_unix = get_unix_time_double();
   afl->debug = debug;
   afl_fsrv_init(&afl->fsrv);
   if (debug) { afl->fsrv.debug = true; }
@@ -3200,7 +3214,11 @@ int main(int argc, char **argv_orig, char **envp) {
     memset(afl->virgin_crash, 255, map_size);
 
     if (likely(!afl->afl_env.afl_no_startup_calibration)) {
-
+      // gettimeofday(&tv, &tz);
+      // double start_dry_run_time = tv.tv_sec + tv.tv_usec / 1e6;u64 start_time = get_cur_time();
+      // u64 start_dry_run_time = get_cur_time();
+      // ACTF("TIMING: dry_run_time = %llu", start_dry_run_time);
+      afl->exp_time_dryrun_unix = get_unix_time_double();
       perform_dry_run(afl);
 
     } else {
@@ -3328,6 +3346,10 @@ int main(int argc, char **argv_orig, char **envp) {
   afl->start_time = get_cur_time();
   u8 very_first_run = 1;
 
+  // double main_loop_time = tv.tv_sec + tv.tv_usec / 1e6;
+  // u64 main_loop_time = get_cur_time();
+  // ACTF("TIMING: main_loop = %llu", main_loop_time);
+  afl->exp_time_mainloop_unix = get_unix_time_double();
   while (likely(!afl->stop_soon)) {
 
     cull_queue(afl);

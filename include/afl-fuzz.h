@@ -687,6 +687,11 @@ typedef struct afl_state {
       cmplog_time_us,                   /* Time spend on cmplog             */
       trim_time_us;                     /* Time spend on trimming           */
 
+  /* New: precise wall-clock timestamps (Unix seconds with fractional part) */
+  double exp_time_begin_unix;           /* at program start (very early)     */
+  double exp_time_dryrun_unix;          /* right before perform_dry_run()     */
+  double exp_time_mainloop_unix;        /* right before main fuzz loop while */
+
   u32 slowest_exec_ms,                  /* Slowest testcase non hang in ms  */
       subseq_tmouts;                    /* Number of timeouts in a row      */
 
@@ -904,6 +909,7 @@ typedef struct afl_state {
       *ijon_shared_access;         /* IJON shared access for dynamic offset */
 
 } afl_state_t;
+
 
 struct custom_mutator {
 

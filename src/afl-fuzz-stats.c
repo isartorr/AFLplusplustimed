@@ -379,10 +379,13 @@ void write_stats_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
                     1000;
   if (!runtime_ms) { runtime_ms = 1; }
 
-  fprintf(f,
+    fprintf(f,
           "start_time        : %llu\n"
           "last_update       : %llu\n"
           "run_time          : %llu\n"
+          "exp_begin_unix    : %.6f\n"
+          "exp_dryrun_unix   : %.6f\n"
+          "exp_mainloop_unix : %.6f\n"
           "fuzzer_pid        : %u\n"
           "cycles_done       : %llu\n"
           "cycles_wo_finds   : %llu\n"
@@ -431,7 +434,11 @@ void write_stats_file(afl_state_t *afl, u32 t_bytes, double bitmap_cvg,
           "target_mode       : %s%s%s%s%s%s%s%s%s%s\n"
           "command_line      : %s\n",
           (afl->start_time /*- afl->prev_run_time*/) / 1000, cur_time / 1000,
-          runtime_ms / 1000, (u32)getpid(),
+          runtime_ms / 1000,
+          afl->exp_time_begin_unix,
+          afl->exp_time_dryrun_unix,
+          afl->exp_time_mainloop_unix,
+          (u32)getpid(),
           afl->queue_cycle ? (afl->queue_cycle - 1) : 0, afl->cycles_wo_finds,
           afl->longest_find_time > cur_time - afl->last_find_time
               ? afl->longest_find_time / 1000
