@@ -648,6 +648,9 @@ int main(int argc, char **argv_orig, char **envp) {
   afl->exp_time_begin_unix = get_unix_time_double();
   afl->debug = debug;
   afl_fsrv_init(&afl->fsrv);
+  
+  init_hostname();
+
   if (debug) { afl->fsrv.debug = true; }
   read_afl_environment(afl, envp);
   if (afl->shm.map_size) { afl->fsrv.map_size = afl->shm.map_size; }

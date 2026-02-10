@@ -1483,6 +1483,8 @@ char *sha1_hex(const u8 *data, size_t len);
 /* Apply `sha1_hex` to the first `len` bytes of data of the file at `fname`. */
 char *sha1_hex_for_file(const char *fname, u32 len);
 
+void init_hostname(void);
+
 /* Create file `fn`, but allow it to already exist if `AFL_SHA1_FILENAMES` is
  * enabled. */
 static inline int permissive_create(afl_state_t *afl, const char *fn) {
